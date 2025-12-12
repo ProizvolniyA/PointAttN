@@ -12,7 +12,7 @@ import os
 import sys
 import argparse
 from dataset import C3D_h5, PCN_pcd
-
+from my_dataset import CustomH5Dataset
 
 def train():
     logging.info(str(args))
