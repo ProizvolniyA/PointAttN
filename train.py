@@ -14,7 +14,7 @@ import argparse
 # Импорт стандартных датасетов
 from dataset import C3D_h5, PCN_pcd
 # Импорт вашего нового датасета
-from my_dataset import CustomH5Dataset
+from utils.my_dataset import CustomH5Dataset
 
 def train():
     logging.info(str(args))
