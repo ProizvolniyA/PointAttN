@@ -28,9 +28,8 @@ class CustomH5Dataset(data.Dataset):
         # PointAttN обычно ожидает формат (N, 3). 
         # Если ваши данные (3, N), используйте .transpose(0, 1)
         
-        # Возвращаем кортеж: (вход, выход, имя/индекс)
-        # Третий аргумент часто нужен для логирования, можно вернуть индекс
-        return partial, gt, index 
+        # Возвращаем кортеж: (имя/индекс, вход, выход)
+        return index, partial, gt 
 
     def __len__(self):
         return self.partials.shape[0]
