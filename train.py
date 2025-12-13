@@ -11,7 +11,9 @@ import yaml
 import os
 import sys
 import argparse
+# Импорт стандартных датасетов
 from dataset import C3D_h5, PCN_pcd
+# Импорт вашего нового датасета
 from my_dataset import CustomH5Dataset
 
 def train():
@@ -21,14 +23,23 @@ def train():
     train_loss_meter = AverageValueMeter()
     val_loss_meters = {m: AverageValueMeter() for m in metrics}
 
+    # --- ИЗМЕНЕНИЯ НАЧИНАЮТСЯ ЗДЕСЬ ---
     if args.dataset == 'pcn':
         dataset = PCN_pcd(args.pcnpath, prefix="train")
         dataset_test = PCN_pcd(args.pcnpath, prefix="test")
     elif args.dataset == 'c3d':
         dataset = C3D_h5(args.c3dpath, prefix="train")
         dataset_test = C3D_h5(args.c3dpath, prefix="val")
+    elif args.dataset == 'custom':
+        # Логика для вашего датасета
+        logging.info("Loading Custom H5 Datasets: train.h5 and test.h5")
+        # Убедитесь, что пути правильные относительно места запуска скрипта
+        dataset = CustomH5Dataset('train.h5') 
+        dataset_test = CustomH5Dataset('test.h5')
     else:
         raise ValueError('dataset is not exist')
+    # --- ИЗМЕНЕНИЯ ЗАКОНЧЕНЫ ---
+
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size,
                                              shuffle=True, num_workers=int(args.workers))
     dataloader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size,
@@ -92,12 +103,16 @@ def train():
     
         for i, data in enumerate(dataloader, 0):
             optimizer.zero_grad()
-    
+            
+            # ВАЖНО: Ваш CustomH5Dataset должен возвращать (index, partial, gt)
             _, inputs, gt = data
             # mean_feature = None
     
             inputs = inputs.float().cuda()
             gt = gt.float().cuda()
+            
+            # Транспонирование: (Batch, Points, 3) -> (Batch, 3, Points)
+            # Убедитесь, что в h5 файле размерность (N, 3), если нет - уберите transpose
             inputs = inputs.transpose(2, 1).contiguous()
     
             out2, loss2, net_loss = net(inputs, gt)
@@ -128,6 +143,7 @@ def val(net, curr_epoch_num, val_loss_meters, dataloader_test, best_epoch_losses
 
     with torch.no_grad():
         for i, data in enumerate(dataloader_test):
+            # ВАЖНО: при валидации также ожидается порядок (label, partial, gt)
             label, inputs, gt = data
             # mean_feature = None
     
@@ -183,6 +199,4 @@ if __name__ == "__main__":
                         format='%(levelname)s - %(asctime)s - %(module)s - %(message)s',
                         force=True)
     train()
-
-
 
