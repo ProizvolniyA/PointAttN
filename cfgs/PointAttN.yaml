@@ -2,14 +2,14 @@ batch_size: 32
 workers: 2
 nepoch: 400
 model_name: PointAttN
-load_model:  ./log/PointAttN_cd_debug_pcn/model_pcn_new.pth
+load_model: null  # <--- ИЗМЕНЕНО: чтобы учить с нуля
 start_epoch: 0
-num_points: 2048
+num_points: 2048  # <--- Проверьте, совпадает ли это с вашим 'partial' в h5
 work_dir: log/
 flag: debug
-loss: cd #cd
-manual_seed: null # 1748
-step_interval_to_print: 100
+loss: cd
+manual_seed: null
+step_interval_to_print: 50 # <--- Можно уменьшить для наглядности
 epoch_interval_to_save: 1
 epoch_interval_to_val: 1
 
@@ -25,8 +25,8 @@ weight_decay: 0
 betas: 0.9, 0.999
 
 device: '0'
-dataset: 'pcn'
+dataset: 'custom'
+# Пути ниже можно оставить, они будут игнорироваться
 pcnpath: $PATH/ShapeNetCompletion
 c3dpath: $PATH/shapenet
-# test
 save_vis: False
